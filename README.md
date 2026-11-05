@@ -27,7 +27,7 @@
 
 [![CI](https://github.com/Soodok/Deepseek-Harness-Local-Android/actions/workflows/android-build.yml/badge.svg)](https://github.com/Soodok/Deepseek-Harness-Local-Android/actions/workflows/android-build.yml)
 ![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B%20~%2016-3ddc84?logo=android&logoColor=white)
-![Engine](https://img.shields.io/badge/engine-dsh%200.2.1--rc.2-4b5563)
+![Engine](https://img.shields.io/badge/engine-dsh%200.2.2--rc.1-4b5563)
 ![Runtime](https://img.shields.io/badge/runtime-bionic%20Node.js-5fa04e?logo=nodedotjs&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-brightgreen)
 [![Last commit](https://img.shields.io/github/last-commit/Soodok/Deepseek-Harness-Local-Android?color=64748b)](https://github.com/Soodok/Deepseek-Harness-Local-Android/commits/main)
@@ -358,7 +358,7 @@ gradle :app:assembleDebug -Pabi=arm64-v8a -Ppackage=full \
 - **不是手机自动化 App**：读屏点击只是 AI 可用的工具之一，不是产品定位
 - **不做金融类应用**（合规红线）
 - **无障碍能力有明确边界**：不注入不可检测的输入 —— 自动化与欺诈之间那条线我们不动
-- **插件生态跟着上游走**：dsh 引擎锁 `0.2.1-rc.5`，上游插件 API 变更我们需要跟进
+- **插件生态跟着上游走**：dsh 引擎锁 `0.2.2-rc.1`，上游插件 API 变更我们需要跟进
 
 ---
 
