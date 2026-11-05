@@ -1327,9 +1327,12 @@ i18n / bulk-perms / git-hygiene 全过。
 - decide：`0.2.1-rc.5 → 0.2.2-rc.1`，force 重建
 - build（arm64-v8a / x86_64）：命令闭包 + SONAME + PTC 补丁标记 6 项 + WebView
   polyfill v4 四项 + 去重内容 10 锚点，**全部通过**
-- 产物发布在 `runtime` prerelease：`engineVersion=0.2.2-rc.1`、
-  `version=2026.11.05-d2aaf338`、arm64 130.8MB / x86_64 130.4MB、
-  arm64 sha256 `81bfa2076c2a8f9f…`
+- 产物发布在 `runtime` prerelease：`engineVersion=0.2.2-rc.1`。同一内容因脚本注释
+  改动触发过多次重建，线上最终为 `version=2026.11.05-a5001cb3`、
+  arm64 sha256 `4cd1c4136c549a06…`、137,186,300 B（解包 438,357,432 B）
+- `android-build`（run `41949008855`，main 推送）四包全绿：arm64 full 145.3MB /
+  noruntime 18.3MB、x86_64 full 144.9MB / noruntime 18.3MB；内嵌 runtime
+  `2026.11.05-9adbfca2`（同为 0.2.2-rc.1，zip sha 只反映那次重建）
 
 ### 没做的事
 
