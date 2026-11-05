@@ -1266,11 +1266,15 @@ object EngineConfig {
              |    - id: android-device-tools
              |      name: ./android-plugins/device-tools.mjs
              |
-             |# dsh 0.2.2 起引擎自带手机布局（.frame[data-sidebar-drawer] 绝对定位抽屉 +
-            |# drawerMask + 窄屏列折叠），三件套的假设（三列 grid）已经不成立：网格属性对
-            |# 绝对定位列无效，侧栏卡在 280px、中心列被隐藏后只剩遮罩 → 整屏灰板。
-            |# 因此三件套默认全部 disabled（保留文件与 index.js，仅不再接管），走引擎原生；
-            |# 需要旧行为时把下面三处 disabled 改回 OO_NARROW_DISABLED_OO 即可。
+             |# Retired in v1.5.0-beta.23 (dsh 0.2.2): the engine now ships its own mobile
+            |# layout - .frame[data-sidebar-drawer] .sidebarCol is position:absolute with a
+            |# z-index:70 drawerMask and narrow-width column collapsing. The three-piece
+            |# fixes below assume the old three-column grid, so their grid-column: 1/-1 has
+            |# no effect on an absolutely positioned column: the sidebar stays 280px, the
+            |# center column is display:none, and only the mask is left on screen (a solid
+            |# grey plate). They are therefore disabled by default; the files stay for
+            |# reference. To restore the old behaviour, put OO_NARROW_DISABLED_OO back on
+            |# the three disabled: lines below.
             |#
             |# Narrow-screen UI fixes (v1.2.175 - v1.2.181). Each is a *client plugin
             |# package* (directory form, e.g. narrow-sidebar/package.json): the package
@@ -1328,6 +1332,9 @@ object EngineConfig {
 
             |""".trimMargin()
 
+        // v1.5.0-beta.23：dsh 0.2.2 引擎自带手机布局（绝对定位抽屉 + drawerMask + 窄屏
+        // 列折叠），三件套依赖的 grid-column 对绝对定位列无效 → 侧栏卡 280px、中心列被
+        // 隐藏后只剩遮罩（整屏灰板）。故三件套默认 disabled，走引擎原生；文件保留。
         // v1.4.67：两套竖屏 UI 方案互斥，由设置里的「官方推荐手机 UI」决定。
         //   · 开 → 自制三件套禁用（mobile-layout 由 profile bundle 提供，见下）；
         //   · 关（默认）→ 反过来。
