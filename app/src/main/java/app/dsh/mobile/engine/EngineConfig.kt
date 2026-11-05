@@ -1300,7 +1300,7 @@ object EngineConfig {
             |- insert:
             |    - id: android-narrow-settings
             |      name: ./android-plugins/narrow-settings/index.js
-            |      disabled: true
+            |      disabled: OO_NARROW_DISABLED_OO
             |
             |- insert:
             |    - id: android-narrow-rightbar
