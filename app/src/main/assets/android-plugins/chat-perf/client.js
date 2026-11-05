@@ -137,12 +137,85 @@ window.__ModuleLoader__.load({
       if (p) p.removeChild(old);
     }
 
+
+    /**
+     * 窄屏排版修补（v1.6.0-beta.5）。
+     *
+     * 为什么用 JS 而不是纯 CSS：引擎 0.2.2 原生抽屉里那排入口（插件 /
+     * 自动化任务 / DSH-COCO / 记忆系统 / MCP 连接器 / SSH 工作区）既不是
+     * [role="tablist"] 也不是 <nav>，class 还带哈希前缀 —— 按选择器写的
+     * 换行规则全部落空，280px 抽屉里第 3 个标签被裁在右边缘。
+     *
+     * 这里改成**按文本锚点找容器**：取「插件」「自动化任务」「MCP 连接器」
+     * 三个标签的最近公共祖先，把它强制成 flex + wrap，子项可收缩。式样走
+     * inline + !important，压过引擎样式表，不依赖任何 class 名。
+     */
+    var POLISH_TEXT = ["插件", "自动化任务", "MCP 连接器", "记忆系统"];
+    var POLISH_DONE = typeof WeakSet === "function" ? new WeakSet() : null;
+
+    function commonAncestor(a, b) {
+      var chain = [];
+      for (var p = a; p; p = p.parentElement) chain.push(p);
+      for (var q = b; q; q = q.parentElement) {
+        if (chain.indexOf(q) >= 0) return q;
+      }
+      return null;
+    }
+
+    function polishStrip(anchors) {
+      var hits = [];
+      var all = document.body ? document.body.getElementsByTagName("*") : [];
+      for (var i = 0; i < all.length && hits.length < anchors.length; i++) {
+        var el = all[i];
+        if (el.children.length) continue;
+        var txt = (el.textContent || "").trim();
+        if (txt && anchors.indexOf(txt) >= 0) hits.push(el);
+      }
+      if (hits.length < 2) return;
+      var lca = hits[0];
+      for (var k = 1; k < hits.length; k++) {
+        lca = commonAncestor(lca, hits[k]);
+        if (!lca) return;
+      }
+      if (!lca || lca === document.body || (POLISH_DONE && POLISH_DONE.has(lca))) return;
+      if (POLISH_DONE) POLISH_DONE.add(lca);
+      var st = lca.style;
+      st.setProperty("display", "flex", "important");
+      st.setProperty("flex-wrap", "wrap", "important");
+      st.setProperty("gap", "6px 4px", "important");
+      st.setProperty("width", "100%", "important");
+      st.setProperty("max-width", "100%", "important");
+      st.setProperty("box-sizing", "border-box", "important");
+      var kids = lca.children;
+      for (var c = 0; c < kids.length; c++) {
+        var s = kids[c].style;
+        s.setProperty("flex", "0 1 auto", "important");
+        s.setProperty("min-width", "0", "important");
+        s.setProperty("max-width", "100%", "important");
+      }
+      lca.setAttribute("data-dsh-polished", "strip");
+    }
+
+    function polish() {
+      try {
+        polishStrip(POLISH_TEXT);
+        polishStrip(["通用设置", "内置插件"]);
+      } catch (e) { /* 排版修补失败不影响聊天 */ }
+    }
+
     /**
      * 浏览器端插件体。
      * @param {object} ctx - 客户端 Cordis 上下文。
      * @returns {() => void} 卸载函数。
      */
     function apply(ctx) {
+      // 窄屏排版修补：抽屉入口条 / 设置顶部导航换行（不依赖 class 与 role）
+      polish();
+      var polishTimer = window.setInterval(polish, 1200);
+      ctx.effect(function () {
+        return function () { window.clearInterval(polishTimer); };
+      });
+
       /**
        * 只在**会话界面存在**时注入。
        *
