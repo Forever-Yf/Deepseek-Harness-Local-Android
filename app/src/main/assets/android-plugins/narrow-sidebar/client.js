@@ -1,5 +1,5 @@
 /**
- * [dsh-android] 窄屏侧栏全宽 —— 浏览器端 bundle（v1.2.175）。
+ * [dsh-android] 窄屏侧栏全宽 —— 浏览器端 bundle（v1.2.176）。
  *
  * ## 症状与目标
  * 手机竖屏（实测 1216x2640，视口约 405px 逻辑宽）下，用户展开侧栏后：
@@ -81,6 +81,12 @@ window.__ModuleLoader__.load({
     const STYLE_TEXT = [
       "/* 侧栏占满整行：从第一条轨道跨到最后一条 */",
       "[" + SIDEBAR_ATTR + "] { grid-column: 1 / -1; }",
+      /* v1.2.176（引擎 0.2.2-rc.1 实测）：窄屏下引擎改走原生抽屉 —— 侧栏列变成
+         position:absolute 且带内联 width:min(280px, 100vw-48px)，`grid-column` 对
+         绝对定位元素完全不生效。结果：侧栏只剩 280px，中心列被本插件隐藏，剩下的
+         空档被引擎的 drawerMask（--dsw-alias-bg-mask-1）盖住 —— 用户看到的是
+         「左窄栏 + 右边一整块灰板」。这里直接把侧栏拉到 100vw 覆盖遮罩。 */
+      "[" + SIDEBAR_ATTR + "] { width: 100vw !important; max-width: 100vw !important; }",
       "/* 对话列让位（隐藏对话流，符合「侧栏全展开」） */",
       "[" + YIELD_ATTR + "] { display: none; }",
     ].join("\n");
