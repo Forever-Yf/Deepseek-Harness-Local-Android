@@ -1266,7 +1266,13 @@ object EngineConfig {
              |    - id: android-device-tools
              |      name: ./android-plugins/device-tools.mjs
              |
-             |# Narrow-screen UI fixes (v1.2.175 - v1.2.181). Each is a *client plugin
+             |# dsh 0.2.2 起引擎自带手机布局（.frame[data-sidebar-drawer] 绝对定位抽屉 +
+            |# drawerMask + 窄屏列折叠），三件套的假设（三列 grid）已经不成立：网格属性对
+            |# 绝对定位列无效，侧栏卡在 280px、中心列被隐藏后只剩遮罩 → 整屏灰板。
+            |# 因此三件套默认全部 disabled（保留文件与 index.js，仅不再接管），走引擎原生；
+            |# 需要旧行为时把下面三处 disabled 改回 OO_NARROW_DISABLED_OO 即可。
+            |#
+            |# Narrow-screen UI fixes (v1.2.175 - v1.2.181). Each is a *client plugin
             |# package* (directory form, e.g. narrow-sidebar/package.json): the package
             |# declares dsh.client + exports["./client"], and the engine's client-modules
             |# scanner discovers it from Loader entries and injects the browser bundle.
@@ -1285,17 +1291,17 @@ object EngineConfig {
             |- insert:
             |    - id: android-narrow-sidebar
             |      name: ./android-plugins/narrow-sidebar/index.js
-            |      disabled: OO_NARROW_DISABLED_OO
+            |      disabled: true
             |
             |- insert:
             |    - id: android-narrow-settings
             |      name: ./android-plugins/narrow-settings/index.js
-            |      disabled: OO_NARROW_DISABLED_OO
+            |      disabled: true
             |
             |- insert:
             |    - id: android-narrow-rightbar
             |      name: ./android-plugins/narrow-rightbar/index.js
-            |      disabled: OO_NARROW_DISABLED_OO
+            |      disabled: true
             |
             |# v1.5.0: mobile portrait layout (@xiaopb/dsh-mobile-layout) is no longer
             |# inserted here. It is a *user-space* plugin now: APK ships its tgz under
