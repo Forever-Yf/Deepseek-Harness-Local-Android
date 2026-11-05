@@ -1340,3 +1340,26 @@ i18n / bulk-perms / git-hygiene 全过。
   直接失败（`.github/workflows/android-build.yml:445`），本轮只跑分支构建。
 - `app/src/main/assets/android-plugins/*/package.json` 里的 `"dsh": ">=0.2.1-rc.2"`
   是**兼容下限**，不动 —— `>=` 天然容纳 0.2.2。
+
+### 十九、1.6.0-beta.1：fork 打通正式发版 + 交还引擎原生手机 UI
+
+- fork 已配好发版材料：自签 PKCS12 keystore（RSA 2048 / 10000 天，证书 SHA-256
+  `0B:79:59:04:17:BA:7B:8D:54:A9:A0:78:F2:54:2B:E0:47:BE:39:AA:1A:99:2C:E2:64:9C:AD:20:54:D0:D4:43`）、
+  4 个 `RELEASE_*` secrets 与变量 `ENABLE_CI_IN_FORK=true`；`publish-release` / `publish-edge`
+  因此在 fork 上可跑（tag 构建不再按 :445 的设计直接失败）。
+- `v1.5.0-beta.21` 是第一个真机可用的包：arm64 release APK 158,435,276 B，内嵌
+  runtime `2026.11.05-a5001cb3`（引擎 0.2.2-rc.1）。装后回读
+  `engine/BUILD.json` → `engineVersion=0.2.2-rc.1`、`.runtime-version` 与之一致。
+- 装完的竖屏 bug：侧栏卡 280px、右半屏整块纯灰。原因不是打包，而是 0.2.2 把
+  `.frame[data-sidebar-drawer] .sidebarCol` 改成 `position:absolute` 的原生抽屉
+  （宽度 `min(sidebar||280, viewport-48)`，配 `z-index:70` 的 `drawerMask`）；
+  三件套仍按旧三列网格写 `grid-column:1/-1`（对绝对定位列无效）并把中心列
+  `display:none`，于是只剩遮罩。
+- 处理：overlay 里 `android-narrow-sidebar` / `-settings` / `-rightbar` 的
+  `disabled` 从占位符改成 `true`，布局交还引擎原生；插件文件与 `chat-perf` 保留。
+  `narrow-sidebar` 的 `width:100vw` 兜底规则留着，万一恢复旧行为可直接用。
+- 版本线调整：`1.5.0-beta.22`（侧栏修复）与 `beta.23`（停用三件套）的 tag 都已取消并
+  删除，直接切到 `1.6.0-beta.1`（`versionCode = 355`），对得起引擎 0.2.2 这个大版本。
+- 门禁坑（会反复踩）：overlay 那段是 **Kotlin 原始字符串**，写在里面的中文会被
+  `i18n-check` 的 CJK-in-literal 判红，报错行号是字面量起始行（`EngineConfig.kt:1088`），
+  不是中文所在行。中文说明只能放 `//` 注释里。
