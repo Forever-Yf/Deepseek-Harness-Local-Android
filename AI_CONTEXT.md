@@ -1287,3 +1287,53 @@ i18n / bulk-perms / git-hygiene 全过。
 - P2-5 精确闹钟（`SCHEDULE_EXACT_ALARM`）
 - `screenwatch` / `audio` 的**授权路径尚未真机跑通**（只验了无授权时的如实报错，
   授权需在前台点系统弹窗，adb 无法代替点击）
+
+## 十八、上游引擎升级到 0.2.2-rc.1（2026-11-05，fork 分支 `engine/dsh-0.2.2-rc.1`）
+
+上游 `@deepseek-ai/dsh` 的 dist-tags 现状：`latest=0.2.1-rc.5`、`next=0.2.2-rc.1`、
+`alpha=0.2.2-alpha.3`。项目此前一直跟 `latest`，本轮改为跟 `next`。
+
+### 改了 6 处版本钉
+
+| 文件 | 位置 | 旧 → 新 |
+|---|---|---|
+| `.github/workflows/runtime-build.yml` | `inputs.dsh_version.default`（37） | 0.2.1-rc.5 → 0.2.2-rc.1 |
+| 同上 | `env.DEFAULT_DSH_VERSION`（70） | 同上 |
+| `.github/workflows/upstream-staging.yml` | `inputs.dsh_version.default`（9） | 同上 |
+| `scripts/build-runtime.sh` | `DSH_VERSION` 默认值（19） | 同上 |
+| `scripts/collect-termux-runtime.sh` | `DSH_VERSION` 默认值（119） | 同上 |
+| `scripts/test_build_runtime_version.py` | 夹具 `DEFAULT_VERSION`（17） | 同上 |
+
+### 依赖闭包差异（实测 npm tarball，不是猜）
+
+0.2.1-rc.5 → 0.2.2-rc.1：**86 → 90 项，纯新增，无移除**
+
+- `@deepseek-ai/dsh-official-bundles`
+- `@deepseek-ai/dsh-personalized-recommendations`
+- `@deepseek-ai/dsh-experimental-forge-bundle`
+- `@deepseek-ai/dsh-experimental-liveshare`
+
+另 `package.json` 新增 `engines.node >= 24.9.0`（运行时自带 node 24.x，满足）。
+
+### 补丁目标复核（9 个包 `lib/index.js` 的 sha256 对比）
+
+只有 `dsh-subprocess-local` 字节未变；`fs-local` / `attachment-local` /
+`ptc-runtime-node` / `session-persistence-jsonl` / `sandbox-local` /
+`plugin-manager` / `app-boot` 七个均有改动（`ptc-runtime-node` 由 65KB 涨到 168KB）。
+锚点仍命中，**补丁脚本一行没改** —— 依据是 CI 的两道产物门禁全绿，不是主观判断。
+
+### 验收（run `41948066806`，双架构）
+
+- decide：`0.2.1-rc.5 → 0.2.2-rc.1`，force 重建
+- build（arm64-v8a / x86_64）：命令闭包 + SONAME + PTC 补丁标记 6 项 + WebView
+  polyfill v4 四项 + 去重内容 10 锚点，**全部通过**
+- 产物发布在 `runtime` prerelease：`engineVersion=0.2.2-rc.1`、
+  `version=2026.11.05-d2aaf338`、arm64 130.8MB / x86_64 130.4MB、
+  arm64 sha256 `81bfa2076c2a8f9f…`
+
+### 没做的事
+
+- **tag 正式发版**：fork 上没有 `RELEASE_*` secrets，`android-build` 在 tag 上会按设计
+  直接失败（`.github/workflows/android-build.yml:445`），本轮只跑分支构建。
+- `app/src/main/assets/android-plugins/*/package.json` 里的 `"dsh": ">=0.2.1-rc.2"`
+  是**兼容下限**，不动 —— `>=` 天然容纳 0.2.2。

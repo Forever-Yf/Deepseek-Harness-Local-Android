@@ -116,7 +116,12 @@ rm -rf "$ROOT/data"
 # session-persistence-jsonl/sandbox-local/node-addon-system/plugin-manager/app-boot
 # 九个包 sha256 一致），依赖清单也是同样的 86 项，仅版本号整体抬升 ——
 # 故所有锚点天然仍然命中，无需改动任何补丁。
-DSH_VERSION="${DSH_VERSION:-0.2.1-rc.5}"
+# v1.5.0-beta.21 升级到 0.2.2-rc.1（CI run 41948066806 双架构全绿）：依赖 86 → 90，
+# 新增 official-bundles / personalized-recommendations / experimental-forge-bundle /
+# experimental-liveshare，无移除；补丁目标包只有 subprocess-local 的 lib/index.js
+# 字节未变，其余可比的 7 个均有改动（ptc-runtime-node 65KB → 168KB）——锚点仍命中，
+# PTC 标记 6 项 + polyfill 4 项 + 完整性 10 锚点全过，补丁脚本未改。
+DSH_VERSION="${DSH_VERSION:-0.2.2-rc.1}"
 mkdir -p "$WORK/bundle" && cd "$WORK/bundle"
 printf '{"name":"dsh-runtime","private":true,"dependencies":{"@deepseek-ai/dsh":"%s"}}' \
   "$DSH_VERSION" > package.json
